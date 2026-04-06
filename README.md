@@ -1,1 +1,1 @@
-https://ajoe-alex.github.io/accelq-api-doc-site/
+https://accelq-docs.github.io/external-api-doc/
