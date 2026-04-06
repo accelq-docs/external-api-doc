@@ -1,0 +1,614 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Project Resource Management API",
+    "version": "1.0.0",
+    "description": "APIs for managing project-level resources such as run properties and string encryption. Access is restricted to users authorized for the specified project."
+  },
+  "servers": [
+    {
+      "url": "{accelqLoginUrl}/awb/api/2.0/{tenantCode}/{projectCode}",
+      "variables": {
+        "accelqLoginUrl": {
+          "default": "https://org.accelq.io",
+          "description": "The AccelQ login URL for API access."
+        },
+        "tenantCode": {
+          "default": "TenantCode",
+          "description": "Tenant code for identifying the organization."
+        },
+        "projectCode": {
+          "default": "ProjectCode",
+          "description": "Project Code found under Auth properties of ACCELQ User Profile"
+        }
+      }
+    }
+  ],
+   "components": {
+    "securitySchemes": {
+      "UserId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "user_id",
+        "description": "Login Email."
+      },
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_key",
+        "description": "API Key found under Auth Properties in ACCELQ User Profile."
+      }
+    }
+  },
+  "security": [
+    {
+      "UserId": [],
+      "ApiKey": []
+    }
+  ],
+  "paths": {
+    "/res/run-property": {
+      "get": {
+        "tags": [
+          "Run Properties"
+        ],
+        "summary": "List Run Properties",
+        "description": "Returns a paginated list of run properties configured for the current project.",
+        "operationId": "getAllRunProperties",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number for pagination.",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page (Maximum: 100).",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a list of Run Properties.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "page": {
+                      "type": "integer",
+                      "example": 3
+                    },
+                    "pageSize": {
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "example": 4
+                    },
+                    "totalCount": {
+                      "type": "integer",
+                      "example": 36
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pid": {
+                            "type": "integer",
+                            "example": 14885
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Test"
+                          },
+                          "createdUser": {
+                            "type": "integer",
+                            "example": 2
+                          },
+                          "createdTimestamp": {
+                            "type": "number",
+                            "example": 1730801799833
+                          },
+                          "lastModifiedUser": {
+                            "type": "integer",
+                            "example": 5
+                          },
+                          "lastModifiedTimestamp": {
+                            "type": "integer",
+                            "example": 1746801799833
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "pid": 1,
+                          "name": "City",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730801799833
+                        },
+                        {
+                          "pid": 2,
+                          "name": "Price",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730805955710
+                        },
+                        {
+                          "pid": 3,
+                          "name": "Date",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730801799833
+                        },
+                        {
+                          "pid": 4,
+                          "name": "Booking Id",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730805955710
+                        },
+                        {
+                          "pid": 5,
+                          "name": "Movie Name",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730805955710
+                        },
+                        {
+                          "pid": 6,
+                          "name": "Total Centuries",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730805955710
+                        },
+                        {
+                          "pid": 7,
+                          "name": "Country",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730805955710
+                        },
+                        {
+                          "pid": 8,
+                          "name": "Is Admin",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730801799833
+                        },
+                        {
+                          "pid": 9,
+                          "name": "Mobile Type",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730805955710
+                        },
+                        {
+                          "pid": 10,
+                          "name": "Discount Percentage",
+                          "createdUser": 1,
+                          "createdTimeStamp": 1730801799833,
+                          "lastModifiedUser": 1,
+                          "lastModifiedTimestamp": 1730801799833
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid page number or page size",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "invalidPage": {
+                    "summary": "Page number too high",
+                    "value": {
+                      "error": "Requested page exceeds available pages."
+                    }
+                  },
+                  "invalidSize": {
+                    "summary": "Page size out of range",
+                    "value": {
+                      "error": "Page size must be between 1 and 100."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to fetch Run Properties",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User do not have authorization to access this feature."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Project not found.",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "error": "Project with code 'proj123' not found."
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Run Properties"
+        ],
+        "summary": "Create Run Property",
+        "description": "Creates a new run property for the specified project.",
+        "operationId": "createRunProperty",
+        "parameters": [
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "example": "New Run Property",
+                    "description": "Name of the new Run Property.<Br/> Name validation rules: Can contain only letters, numbers, spaces, periods, and underscores."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Run Property successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pid": {
+                      "type": "integer",
+                      "example": 15754
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "New Run Property"
+                    },
+                    "createdUser": {
+                      "type": "integer",
+                      "example": 2
+                    },
+                    "createdTimestamp": {
+                      "type": "number",
+                      "example": 1730801799833
+                    },
+                    "lastModifiedUser":{
+                      "type":"number",
+                      "example":2
+                    },
+                    "lastModifiedTimestamp":{
+                      "type": "number",
+                      "example": 1730801799833
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Validation errors occurred.",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "emptyName": {
+                    "summary": "Name required",
+                    "value": {
+                      "error": "Run Property name is required."
+                    }
+                  },
+                  "duplicateName": {
+                    "summary": "Name already exists",
+                    "value": {
+                      "error": "Run Property with name 'New Run Property' already exists."
+                    }
+                  },
+                  "nameValidation": {
+                    "summary": "Name Validation error",
+                    "value": {
+                      "error": "Run Property  Can contain only letters, numbers, spaces, periods, and underscores."
+                    }
+                  },
+                   "limitReached": {
+                      "summary": "Max Run Property limit reached",
+                      "value": {
+                        "error": "Maximum Run Property limit of 500 reached. Unable to create additional Run Properties."
+                      }
+                    }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to create Run Property.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User do not have authorization to access this feature."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Project not found.",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "error": "Project with code 'proj123' not found."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/res/run-property/{runPropertyPid}": {
+      "put": {
+        "tags": [
+          "Run Properties"
+        ],
+        "summary": "Update Run Property",
+        "description": "Updates the name of an existing run property identified by its PID.",
+        "operationId": "updateRunProperty",
+        "parameters": [
+          {
+            "name": "runPropertyPid",
+            "in": "path",
+            "required": true,
+            "description": "Run Property pid for which to update the name.",
+            "schema": {
+              "type": "integer",
+              "example": "43"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "example": "New Run Property",
+                    "description": "Name of the new Run Property.<Br/> Name validation rules: Can contain only letters, numbers, spaces, periods, and underscores."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Run Property successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pid": {
+                      "type": "integer",
+                      "example": 15754
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "New Run Property"
+                    },
+                    "createdUser": {
+                      "type": "integer",
+                      "example": 2
+                    },
+                    "createdTimestamp": {
+                      "type": "number",
+                      "example": 1730801799833
+                    },
+                    "lastModifiedUser": {
+                      "type": "integer",
+                      "example": 5
+                    },
+                    "lastModifiedTimestamp": {
+                      "type": "integer",
+                      "example": 1746801799833
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Validation errors occurred.",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "emptyName": {
+                    "summary": "Name required",
+                    "value": {
+                      "error": "Run Property name is required."
+                    }
+                  },
+                  "duplicateName": {
+                    "summary": "Name already exists",
+                    "value": {
+                      "error": "Run Property with name 'New Run Property' already exists."
+                    }
+                  },
+                  "nameValidation": {
+                    "summary": "Name Validation error",
+                    "value": {
+                      "error": "Run Property  Can contain only letters, numbers, spaces, periods, and underscores."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to create Run Property.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User do not have authorization to access this feature."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Project not found.",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "example": {
+                  "error": "Project with code 'proj123' not found."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/res/encrypt": {
+      "get": {
+        "tags": [
+          "Encryption"
+        ],
+        "summary": "Encrypt string.",
+        "description": "Encrypts the provided input string and returns the encrypted value.",
+        "operationId": "encryptString",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "example": "Input string",
+                "description": "Input string (required)"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with encrypted string.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "3kXu75r/kx3bCzjSVHsvcw=="
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request. Validation errors occurred.",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "emptyString": {
+                    "summary": "Name required",
+                    "value": {
+                      "error": "Input string is required."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to encrypt string.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User do not have authorization to access this feature."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

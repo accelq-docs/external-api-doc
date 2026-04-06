@@ -1,0 +1,1131 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User management API",
+    "version": "1.0.0",
+    "description": "APIs for User management and license administration. These endpoints allow Tenant Admins to manage Users, subscriptions, licenses, and user activation status within a tenant."
+  },
+ "servers": [
+    {
+      "url": "{accelqLoginUrl}/awb/api/2.0/{tenantCode}",
+      "variables": {
+        "accelqLoginUrl": {
+          "default": "https://org.accelq.io",
+          "description": "The AccelQ login URL for API access."
+        },
+        "tenantCode": {
+          "default": "TenantCode",
+          "description": "Tenant code for identifying the organization."
+        }
+      }
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "UserId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "user_id",
+        "description": "Login Email."
+      },
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_key",
+        "description": "API Key found under Auth Properties in ACCELQ User Profile."
+      }
+    }
+  },
+  "security": [{ "UserId": [], "ApiKey": [] }],
+  "paths": {
+    "/administration/subscriptions": {
+      "get": {
+        "tags": ["Subscription Management"],
+        "summary": "List subscriptions",
+        "description": "Returns all subscriptions available in the tenant along with their associated license bundles and usage details.",
+        "operationId": "getSubscriptions",
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of Subscription information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "subscriptionId": {
+                        "type": "string",
+                        "example": "1724156779826",
+                        "description": "Unique identifier for the Subscription"
+                      },
+                      "subscriptionName": {
+                        "type": "string",
+                        "example": "1724156779826",
+                        "description": "Name of the subscription"
+                      },
+                      "startDate": {
+                        "type": "string",
+                        "example": "2024-08-20 12:26:19",
+                        "description": "Subscription start date and time"
+                      },
+                      "endDate": {
+                        "type": "string",
+                        "example": "2025-08-20 12:26:19",
+                        "description": "Subscription end date and time"
+                      },
+                      "subscriptionType": {
+                        "type": "string",
+                        "example": "Commercial",
+                        "description": "Type of subscription"
+                      },
+                      "licenseBundles": {
+                        "type": "array",
+                        "description": "List of license bundles associated with the Subscription",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "licenseBundleId": {
+                              "type": "integer",
+                              "example": "1",
+                              "description": "Unique identifier for the license bundle."
+                            },
+                            "products": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["WEB", "API"],
+                              "description": "Combination of products in the license"
+                            },
+                            "totalLicenses": {
+                              "type": "integer",
+                              "example": 10,
+                              "description": "Total number of licenses available"
+                            },
+                            "assignedLicenses": {
+                              "type": "integer",
+                              "example": 3,
+                              "description": "Number of licenses currently assigned"
+                            },
+                            "availableLicenses": {
+                              "type": "integer",
+                              "example": 7,
+                              "description": "Number of available licenses"
+                            }
+                          }
+                        },
+                        "example": [
+                          {
+                            "licenseBundleId": 1,
+                            "products": ["WEB", "API"],
+                            "totalLicenses": 10,
+                            "assignedLicenses": 3,
+                            "availableLicenses": 7
+                          },
+                          {
+                            "licenseBundleId": 3,
+                            "products": ["MOBILE", "API"],
+                            "totalLicenses": 5,
+                            "assignedLicenses": 4,
+                            "availableLicenses": 1
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to view subscriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error occurred while retrieving Subscription information."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/administration/users": {
+      "get": {
+        "tags": ["User Administration"],
+        "summary": "Retrieve all users in the Tenant",
+        "description": "Retrieve a list of all users in the tenant, including their assigned licenses and Project roles.",
+        "operationId": "getAllUsers",
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of users list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "userPid": {
+                        "type": "integer",
+                        "example": "26",
+                        "description": "Unique identifier of the user"
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "example": "Test",
+                        "description": "First name of the user"
+                      },
+                      "lastName": {
+                        "type": "string",
+                        "example": "User",
+                        "description": "Last name of the user"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "Testuser@accelq.com",
+                        "description": "Email address of the user"
+                      },
+                      "active": {
+                        "type": "boolean",
+                        "example": true,
+                        "description": "Flag indicating if the user account is active"
+                      },
+                      "tenantAdmin": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "Flag indicating if the user is a Tenant administrator"
+                      },
+                      "assignedLicenses": {
+                        "type": "array",
+                        "description": "List of licenses assigned to the user",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "subscriptionId": {
+                              "type": "string",
+                              "example": "1724156779826",
+                              "description": "Identifier of the subscription"
+                            },
+                            "licenseBundleId": {
+                              "type": "integer",
+                              "example": 1,
+                              "description": "Unique identifier of the license bundle."
+                            },
+                            "products": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["WEB", "API"],
+                              "description": "license products in the bundle"
+                            }
+                          }
+                        }
+                      },
+                      "assignedProjects": {
+                        "type": "array",
+                        "description": "List of projects assigned to the user",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "projectName": {
+                              "type": "string",
+                              "example": "accelq Project",
+                              "description": "Name of the project"
+                            },
+                            "roleName": {
+                              "type": "string",
+                              "example": "SME",
+                              "description": "Role of the user in the project"
+                            },
+                            "isAdmin": {
+                              "type": "boolean",
+                              "example": false,
+                              "description": "Flag indicating if user is admin for this project"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to view users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error retrieving user information"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["User Administration"],
+        "summary": "Create User",
+        "description": "Creates a new user in the tenant and assigns licenses and project roles as specified.",
+        "operationId": "createUser",
+        "parameters": [
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "firstName",
+                  "lastName",
+                  "email",
+                  "assignedLicenses",
+                  "assignedProjects"
+                ],
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "example": "Test",
+                    "description": "First name of the user"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "User4",
+                    "description": "Last name of the user"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "Testuser4@accelq.com",
+                    "description": "Email address of the user"
+                  },
+                  "tenantAdmin": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Flag indicating if the user is a site administrator"
+                  },
+                  "authType": {
+                    "type": "string",
+                    "example": "SSO",
+                    "enum": ["ACCELQ_NATIVE", "SSO"],
+                    "description": "Authentication type for user login. Accepted values are ['ACCELQ_NATIVE', 'SSO']."
+                  },
+                  "ssoId": {
+                    "type": "string",
+                    "example": "DemoUser@gmail.com",
+                    "description": "sso Id for Single sign on authentication. Required with authType as 'SSO'."
+                  },
+                  "assignedLicenses": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["subscriptionId", "licenseId"],
+                      "properties": {
+                        "subscriptionId": {
+                          "type": "string",
+                          "example": 172415678689826,
+                          "description": "Unique identifier of the subscription"
+                        },
+                        "licenseBundleId": {
+                          "type": "integer",
+                          "example": "2",
+                          "description": "Unique identifier for the license bundle."
+                        }
+                      }
+                    }
+                  },
+                  "assignedProjects": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "projectName": {
+                          "type": "string",
+                          "example": "AccelqPROJECT",
+                          "description": "Name of the project to assign"
+                        },
+                        "roleName": {
+                          "type": "string",
+                          "example": "SME",
+                          "description": "Role name for the project assignment"
+                        },
+                        "isAdmin": {
+                          "type": "boolean",
+                          "example": false,
+                          "description": "Flag indicating if user is admin for this project"
+                        }
+                      }
+                    },
+                    "description": "List of project assignments with roles"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userPid": {
+                      "type": "integer",
+                      "example": "25",
+                      "description": "Unique identifier of the user"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "Test",
+                      "description": "First name of the user"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "User4",
+                      "description": "Last name of the user"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "Testuser4@accelq.com",
+                      "description": "Email address of the user"
+                    },
+                    "active": {
+                      "type": "boolean",
+                      "example": true,
+                      "description": "Flag indicating if the user account is active"
+                    },
+                    "tenantAdmin": {
+                      "type": "boolean",
+                      "example": false,
+                      "description": "Flag indicating if the user is a Tenant administrator"
+                    },
+                    "assignedLicenses": {
+                      "type": "array",
+                      "description": "List of licenses assigned to the user",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "subscriptionId": {
+                            "type": "string",
+                            "example": "1724156779826",
+                            "description": "Identifier of the subscription"
+                          },
+                          "subscriptionName": {
+                            "type": "string",
+                            "example": "1724156779826",
+                            "description": "Name of the subscription"
+                          },
+                          "licenseBundleId": {
+                            "type": "integer",
+                            "example": 2,
+                            "description": "Unique identifier of the license bundle."
+                          },
+                           "products": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["WEB", "API"],
+                              "description": "license products in the bundle"
+                            },
+                          "subscriptionType": {
+                            "type": "string",
+                            "example": "Commercial",
+                            "nullable": true,
+                            "description": "Type of subscription"
+                          }
+                        }
+                      }
+                    },
+                    "assignedProjects": {
+                      "type": "array",
+                      "description": "List of projects assigned to the user",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "projectName": {
+                            "type": "string",
+                            "example": "AccelqPROJECT",
+                            "description": "Name of the project"
+                          },
+                          "roleName": {
+                            "type": "string",
+                            "example": "SME",
+                            "description": "Role of the user in the project"
+                          },
+                          "isAdmin": {
+                            "type": "boolean",
+                            "example": false,
+                            "description": "Flag indicating if user is admin for this project"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request Error",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "invalidEmail": {
+                    "summary": "Invalid email format",
+                    "value": {
+                      "error": "Invalid email address format"
+                    }
+                  },
+                  "duplicateEmail": {
+                    "summary": "Email already exists",
+                    "value": {
+                      "error": "User with this email already exists"
+                    }
+                  },
+                  "invalidProject": {
+                    "summary": "Invalid project assignment",
+                    "value": {
+                      "error": "One or more assigned projects do not exist"
+                    }
+                  },
+                  "emptyFirstName": {
+                    "summary": "First name is required",
+                    "value": {
+                      "error": "firstName of the user cannot be null or empty."
+                    }
+                  },
+                  "emptyLastName": {
+                    "summary": "Last name is required",
+                    "value": {
+                      "error": "lastName of the user cannot be null or empty."
+                    }
+                  },
+                  "emptyAssignedProjects": {
+                    "summary": "At least one project must be assigned",
+                    "value": {
+                      "error": "Assign at least one project to the user."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to create users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/administration/users/{userPid}": {
+      "delete": {
+        "tags": ["User Administration"],
+        "summary": "Delete User",
+        "description": "Deletes the specified User from the tenant.",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "userPid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the user to be deleted"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User successfully deleted",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request Error",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "selfDelete": {
+                    "summary": "Attempting to delete own account",
+                    "value": {
+                      "error": "Cannot delete your own user account"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to delete users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User with pid : '26' doesnot exist."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/administration/users/activate": {
+      "put": {
+        "tags": ["User Administration"],
+        "summary": "Activate or schedule activation of a User",
+        "description": "Activates a User immediately or for a specified date range.",
+        "operationId": "activateUser",
+        "parameters": [
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userPid", "activeFrom", "activeTo"],
+                "properties": {
+                  "userPid": {
+                    "type": "integer",
+                    "example": "25",
+                    "description": "Unique identifier of the user"
+                  },
+                  "activeFrom": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2024-01-01",
+                    "description": "Start date of the activation period (YYYY-MM-DD)"
+                  },
+                  "activeTo": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-10-10",
+                    "description": "End date of the activation period (YYYY-MM-DD)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User activation successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userPid": {
+                      "type": "integer",
+                      "example": "25",
+                      "description": "Unique identifier of the user"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "Test",
+                      "description": "First name of the user"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "User",
+                      "description": "Last name of the user"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "Testuser@accelq.com",
+                      "description": "Email address of the user"
+                    },
+                    "active": {
+                      "type": "boolean",
+                      "example": true,
+                      "description": "Flag indicating if the user account is active"
+                    },
+                    "tenantAdmin": {
+                      "type": "boolean",
+                      "example": false,
+                      "description": "Flag indicating if the user is a Tenant administrator"
+                    },
+                    "assignedLicenses": {
+                      "type": "array",
+                      "description": "List of license bundles assigned to the user",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "subscriptionId": {
+                            "type": "string",
+                            "example": "1724156779826",
+                            "description": "Identifier of the subscription"
+                          },
+                          "subscriptionName": {
+                            "type": "string",
+                            "example": "1724156779826",
+                            "description": "Name of the subscription"
+                          },
+                          "licenseBundleId":{
+                            "type": "integer",
+                            "example": 3,
+                            "description": "Unique identifier of the license."
+                          },
+                          "products": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "example": ["WEB", "MOBILE"],
+                            "description": "license products in the bundle"
+                          },
+                          "subscriptionType": {
+                            "type": "string",
+                            "example": "Non-commercial use",
+                            "nullable": true,
+                            "description": "Type of subscription"
+                          }
+                        }
+                      }
+                    },
+                    "assignedProjects": {
+                      "type": "array",
+                      "description": "List of projects assigned to the user",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "projectName": {
+                            "type": "string",
+                            "example": "accelq Project",
+                            "description": "Name of the project"
+                          },
+                          "roleName": {
+                            "type": "string",
+                            "example": "SME",
+                            "description": "Role of the user in the project"
+                          },
+                          "isAdmin": {
+                            "type": "boolean",
+                            "example": false,
+                            "description": "Flag indicating if user is admin for this project"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request Error",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "invalidDates": {
+                    "summary": "Invalid date range",
+                    "value": {
+                      "error": "Active To date must be after Active From date"
+                    }
+                  },
+                  "invalidDateFormat": {
+                    "summary": "Invalid date format",
+                    "value": {
+                      "error": "Date format should be YYYY-MM-DD"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to activate users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User with pid : '26' doesnot exist."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/administration/users/deactivate/{userPid}": {
+      "put": {
+        "tags": ["User Administration"],
+        "summary": "Deactivate User",
+        "description": "Deactivates the specified User",
+        "operationId": "deactivateUser",
+        "parameters": [
+          {
+            "name": "userPid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Unique identifier of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deactivation successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "example":true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request Error",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "invalidDates": {
+                    "summary": "Invalid date range",
+                    "value": {
+                      "error": "Active To date must be after Active From date"
+                    }
+                  },
+                  "invalidDateFormat": {
+                    "summary": "Invalid date format",
+                    "value": {
+                      "error": "Date format should be YYYY-MM-DD"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to activate users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User with pid : '26' doesnot exist."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/administration/users/license": {
+      "put": {
+        "tags": ["User Administration"],
+        "summary": "Assign license to User",
+        "description": "Assigns or updates license bundles for the specified user.",
+        "operationId": "assignUserLicense",
+        "parameters": [
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["userPid", "assignedLicenses"],
+                "properties": {
+                  "userPid": {
+                    "type": "integer",
+                    "example": "25",
+                    "description": "Unique identifier of the user"
+                  },
+                  "assignedLicenses": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["subscriptionId", "licenseId"],
+                      "properties": {
+                        "subscriptionId": {
+                          "type": "string",
+                          "example": 1724156779826,
+                          "description": "Unique identifier of the subscription"
+                        },
+                          "licenseBundleId": {
+                            "type": "integer",
+                            "example": 3,
+                            "description": "Unique identifier of the license bundle."
+                          }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User license successfully assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userPid": {
+                      "type": "integer",
+                      "example": 25
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "Test"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "User2"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "testuser2@accelq.com"
+                    },
+                    "active": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "tenantAdmin": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "assignedLicenses": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "subscriptionId": {
+                            "type": "string",
+                            "example": "1724156779826"
+                          },
+                          "subscriptionName": {
+                            "type": "string",
+                            "example": "1724156779826"
+                          },
+                            "licenseBundleId": {
+                              "type": "integer",
+                              "example": 3
+                            },
+                            "products": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "example": ["WEB", "Desktop"]
+                            },
+                          "subscriptionType": {
+                            "type": "string",
+                            "example": "Enterprise"
+                          }
+                        }
+                      }
+                    },
+                    "assignedProjects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "projectName": {
+                            "type": "string",
+                            "example": "accelqProject"
+                          },
+                          "roleName": {
+                            "type": "string",
+                            "example": "SME"
+                          },
+                          "isAdmin": {
+                            "type": "boolean",
+                            "example": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request Error",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "missingLicense": {
+                    "summary": "License details missing",
+                    "value": {
+                      "error": "At least one license must be assigned"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to assign licenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User with pid : '26' doesnot exist."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# # Build output
+# doc/
+
+# Astro
+.astro/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store

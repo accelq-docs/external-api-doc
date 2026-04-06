@@ -1,0 +1,63 @@
+---
+interface Props {
+  method: string;
+}
+
+const { method } = Astro.props;
+
+const methodColors: Record<string, string> = {
+  GET: 'method-get',
+  POST: 'method-post',
+  PUT: 'method-put',
+  PATCH: 'method-patch',
+  DELETE: 'method-delete',
+};
+
+const colorClass = methodColors[method.toUpperCase()] || 'method-default';
+---
+
+<span class={`method-badge ${colorClass}`}>
+  {method.toUpperCase()}
+</span>
+
+<style>
+  .method-badge {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    font-family: monospace;
+    text-transform: uppercase;
+  }
+
+  .method-get {
+    background-color: #059669;
+    color: #ecfdf5;
+  }
+
+  .method-post {
+    background-color: #2563eb;
+    color: #eff6ff;
+  }
+
+  .method-put {
+    background-color: #d97706;
+    color: #fffbeb;
+  }
+
+  .method-patch {
+    background-color: #7c3aed;
+    color: #f5f3ff;
+  }
+
+  .method-delete {
+    background-color: #dc2626;
+    color: #fef2f2;
+  }
+
+  .method-default {
+    background-color: #64748b;
+    color: #f1f5f9;
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+
+// Calculate relative path to root based on current URL depth
+const pathname = Astro.url.pathname;
+const depth = pathname.split("/").filter(Boolean).length;
+const baseUrl = depth === 0 ? "./" : "../".repeat(depth);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/svg+xml" href={`${baseUrl}favicon.svg`} />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} | API Documentation</title>
+	</head>
+	<body>
+		<!-- <header class="site-header">
+			<div class="header-content">
+				<a href={baseUrl} class="logo">API Documentation</a>
+			</div>
+		</header> -->
+		<main>
+			<slot />
+		</main>
+		<script is:inline>
+			// Check for embed mode and add class to main
+			(function() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const isEmbed = urlParams.get('embed') === 'true';
+				if (!isEmbed) {
+					document.querySelector('main').classList.add('normal-mode');
+				}
+			})();
+
+			function zoomOut(factor = 0.9) {
+				document.body.style.transform = `scale(${factor})`;
+				document.body.style.transformOrigin = "0 0";
+				document.body.style.width = `${100 / factor}%`;
+			}
+			zoomOut(0.8);
+			// Notify parent iframe of content height
+			window.addEventListener("load", () => {
+				const height =
+					document.querySelector("main").getBoundingClientRect()
+						.height + 70;
+				window.parent.postMessage(
+					{
+						id: "aq_content",
+						type: "IFRAME_HEIGHT",
+						height,
+						url: window.location.href,
+					},
+					"*",
+				);
+			});
+
+			// Observe DOM changes to update height dynamically
+			const observer = new ResizeObserver(() => {
+				const height =
+					document.querySelector("main").getBoundingClientRect()
+						.height + 70;
+				window.parent.postMessage(
+					{
+						id: "aq_content",
+						type: "IFRAME_HEIGHT",
+						height,
+						url: window.location.href,
+					},
+					"*",
+				);
+			});
+			observer.observe(document.body);
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		--bg: #ffffff;
+		--panel: #f9fafb;
+		--border: #d0d7de;
+		--text: #1f2328;
+		--muted: #57606a;
+		--blue: #0969da;
+		--green: #1a7f37;
+		--orange: #bf8700;
+		--red: #cf222e;
+		--purple: #8250df;
+		--gray-light: #f3f4f6;
+		--mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+	}
+
+	html,
+	body {
+		margin: 0;
+		width: 100%;
+		min-height: 100%;
+		background: var(--bg);
+		color: var(--text);
+		font-family:
+			system-ui,
+			-apple-system,
+			"Segoe UI",
+			Roboto,
+			Arial,
+			sans-serif;
+		line-height: 1.6;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.site-header {
+		background-color: var(--panel);
+		border-bottom: 1px solid var(--border);
+		padding: 1rem 2rem;
+	}
+
+	.header-content {
+		max-width: 1100px;
+		margin: 0 auto;
+	}
+
+	.logo {
+		color: var(--text);
+		text-decoration: none;
+		font-weight: 700;
+		font-size: 1.25rem;
+	}
+
+	.logo:hover {
+		color: var(--blue);
+	}
+
+	main {
+		max-width: 1100px;
+	}
+
+	main.normal-mode {
+		margin: 0 auto;
+		padding: 2.5rem;
+	}
+
+	/* Payload and response JSON blocks - max height with scroll */
+	.code-block.response-block > pre,
+	.code-block.payload-block > pre {
+		max-height: 500px;
+		overflow-y: auto;
+	}
+</style>

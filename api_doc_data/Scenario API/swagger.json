@@ -1,0 +1,650 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Scenario API",
+    "version": "1.0.0",
+    "description": "APIs for retrieving and updating test Scenarios within an AccelQ project. These endpoints support advanced filtering, pagination, and bulk updates for efficient Scenario management."
+  },
+  "servers": [
+    {
+      "url": "{accelqLoginUrl}/awb/api/2.0/{tenantCode}/{projectCode}",
+      "variables": {
+        "accelqLoginUrl": {
+          "default": "https://org.accelq.io",
+          "description": "The AccelQ login URL for API access."
+        },
+        "tenantCode": {
+          "default": "TenantCode",
+          "description": "Tenant code for identifying the organization."
+        },
+        "projectCode": {
+          "default": "ProjectCode",
+          "description": "Project Code found under Auth properties of ACCELQ User Profile"
+        }
+      }
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "UserId": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "user_id",
+        "description": "Login Email."
+      },
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_key",
+        "description": "API Key found under Auth Properties in ACCELQ User Profile."
+      }
+    }
+  },
+  "security": [{ "UserId": [], "ApiKey": [] }],
+  "paths": {
+    "/scn/scenarios/{scenarioType}/fetch-details": {
+      "post": {
+        "tags": ["Scenario"],
+        "summary": "Fetch Scenario details",
+        "description": "Fetches comprehensive information about test Scenarios within your project. This endpoint supports:\n\n- **Pagination**: Control response size with configurable page numbers and sizes (max 25 items per page)\n- **Flexible Filtering**: Filter by specific Scenario IDs or requirement traceability keys\n- **Optional Detailed Information**: Selectively include additional details such as custom fields, step details, requirement traceability in the response\n- **User-Specific Version View**: Results reflect the requesting user’s current version of the entities.",
+        "operationId": "getScenarioStepDetails",
+        "parameters": [
+          {
+            "name": "scenarioType",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "enum": ["auto", "manual"] },
+            "description": "Scenario Type"
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "required": false,
+            "description": "Page number for pagination. Use this to navigate through large result sets efficiently.",
+            "schema": { "type": "integer", "default": 1, "example": 1 }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "Number of Scenarios to return per page.\n\n**Constraints**:\n- Minimum: 1\n- Maximum: 25\n- Default: 20",
+            "schema": { "type": "integer", "example": 20 }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["scenarioIds"],
+                "properties": {
+                  "filter": {
+                    "type": "object",
+                    "description": "**Filtering Criteria** for scenario selection. When multiple criteria are provided, they are combined using logical AND.\n\n**Empty Filter Behavior**: Returns all accessible scenarios in the project.",
+                    "properties": {
+                      "scenarioIds": {
+                        "type": "array",
+                        "items": { "type": "integer" },
+                        "description": "Optional. Specifies the list of Scenario IDs to filter the results. If not provided, information for all available scenarios will be retrieved.",
+                        "example": [1, 3, 8]
+                      },
+                      "requirementKeys": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Optional. List of requirement traceability keys used to filter scenarios. Returns all scenarios linked to any of the specified requirement keys.",
+                        "example": ["TP-12", "TP-59"]
+                      }
+                    }
+                  },
+                  "additionalDetails": {
+                    "type": "object",
+                    "properties": {
+                      "steps": {
+                        "type": "boolean",
+                        "description": "Flag to include the auto Scenario step details in the response. This will be ignored for manual Scenarios."
+                      },
+                      "requirementTraceability": {
+                        "type": "boolean",
+                        "description": "Flag to include the Scenario requirement traceability details in the response."
+                      },
+                      "customFields": {
+                        "type": "boolean",
+                        "description": "Flag to include Scenario custom fields. Defaults to false, if not specified."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "**Successful retrieval** of Scenario details with comprehensive information about filtered Scenarios.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "page": { "type": "integer", "example": 1 },
+                    "pageSize": { "type": "integer", "example": 10 },
+                    "totalPages": { "type": "integer", "example": 1 },
+                    "totalCount": { "type": "integer", "example": 3 },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "example": 1,
+                            "description": "ID of the Scenario shown in the entity grid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Ticket Booking",
+                            "description": "Name of the Scenario"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Scenario to test Ticket Booking functionality",
+                            "description": "Description of the Scenario"
+                          },
+                          "testCasesCount": {
+                            "type": "integer",
+                            "example": 15,
+                            "description": "Total number of test cases associated with the Scenario."
+                          },
+                          "traceabilityCount": {
+                            "type": "integer",
+                            "example": 7,
+                            "description": "Number of requirements associated to the Scenario."
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "New",
+                            "description": "Current status of the Scenario, such as New, In Progress, or Completed."
+                          },
+                          "createdBy": {
+                            "type": "string",
+                            "example": "Tenant Admin",
+                            "description": "Name of the user who created the Scenario."
+                          },
+                          "createdTimestamp": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2025-10-08T09:24:22Z",
+                            "description": "UTC Timestamp when the Scenario was created, in ISO 8601 format."
+                          },
+                          "lastModifiedBy": {
+                            "type": "string",
+                            "example": "Verni Cooper",
+                            "description": "Name of the user who last modified the Scenario."
+                          },
+                          "lastModifiedTimestamp": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2025-10-19T17:59:05Z",
+                            "description": "UTC Timestamp of the last modification made to the Scenario, in ISO 8601 format."
+                          },
+                          "customFields": {
+                            "type": "object",
+                            "example": {
+                              "Priority": "Low",
+                              "New List": "true"
+                            },
+                            "description": "Custom fields associated with the Scenario, represented as key-value pairs."
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "example": ["To be Reviewed", "Smoke"],
+                            "description": "List of tags associated with the Scenario."
+                          },
+                          "stepDetails": {
+                            "type": "array",
+                            "description": "List of step details in the Scenario",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "stepIndex": {
+                                  "type": "integer",
+                                  "description": "Display index of the step in the Scenario"
+                                },
+                                "actionName": {
+                                  "type": "string",
+                                  "description": "Name of the action performed in this step"
+                                },
+                                "actionDescription": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "Description of the action (can be null)"
+                                },
+                                "contextName": {
+                                  "type": "string",
+                                  "description": "Name of the context to which the action belongs"
+                                }
+                              }
+                            }
+                          },
+                          "requirementTraceability": {
+                            "type": "array",
+                            "description": "List of Requirement traceability keys associated to the Scenario",
+                            "items": { "type": "string" },
+                            "example": ["TP-22", "TP-49"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "customFields": {
+                    "value": {
+                      "page": 1,
+                      "pageSize": 10,
+                      "totalPages": 1,
+                      "totalCount": 3,
+                      "results": [
+                        {
+                          "id": 1,
+                          "name": "Ticket Booking",
+                          "description": "Scenario to test Ticket Booking functionality",
+                          "testCasesCount": 15,
+                          "traceabilityCount": 7,
+                          "status": "New",
+                          "createdBy": "Tenant Admin",
+                          "createdTimestamp": "2025-10-08T09:24:22Z",
+                          "lastModifiedBy": "Verni Cooper",
+                          "lastModifiedTimestamp": "2025-10-19T17:59:05Z",
+                          "customFields": {
+                            "Priority": "Low",
+                            "New List": "true"
+                          },
+                          "tags": ["To be Reviewed", "Smoke"]
+                        },
+                        {
+                          "id": 3,
+                          "name": "User Registration",
+                          "description": "Scenario to test new user registration flow",
+                          "testCasesCount": 8,
+                          "traceabilityCount": 1,
+                          "status": "Completed",
+                          "createdBy": "John Citadel",
+                          "createdTimestamp": "2025-10-08T09:24:22Z",
+                          "lastModifiedBy": "Tenant Admin",
+                          "lastModifiedTimestamp": "2025-10-19T17:59:05Z",
+                          "customFields": {
+                            "Priority": "High",
+                            "New List": "true"
+                          },
+                          "tags": ["Regression", "Critical"]
+                        },
+                        {
+                          "id": 8,
+                          "name": "Logout",
+                          "description": "Scenario to test user logout",
+                          "testCasesCount": 15,
+                          "traceabilityCount": 7,
+                          "status": "New",
+                          "createdBy": "Tenant Admin",
+                          "createdTimestamp": "2025-10-08T09:24:22Z",
+                          "lastModifiedBy": "Tenant Admin",
+                          "lastModifiedTimestamp": "2025-10-19T17:59:05Z",
+                          "customFields": {
+                            "Priority": "Low",
+                            "New List": "true"
+                          },
+                          "tags": ["Smoke"]
+                        }
+                      ]
+                    }
+                  },
+                  "stepDetails": {
+                    "value": {
+                      "page": 1,
+                      "pageSize": 10,
+                      "totalPages": 1,
+                      "totalCount": 1,
+                      "results": [
+                        {
+                          "id": 1,
+                          "name": "Ticket Booking",
+                          "description": "Scenario to test Ticket Booking functionality",
+                          "testCasesCount": 15,
+                          "traceabilityCount": 7,
+                          "status": "New",
+                          "createdBy": "Tenant Admin",
+                          "createdTimestamp": "2025-10-08T09:24:22Z",
+                          "lastModifiedBy": "Verni Cooper",
+                          "lastModifiedTimestamp": "2025-10-19T17:59:05Z",
+                          "tags": ["To be Reviewed", "Smoke"],
+                          "stepDetails": [
+                            {
+                              "stepIndex": 1,
+                              "actionName": "Invoke Browser",
+                              "actionDescription": "Initiates a new browser session and loads it with given URL.",
+                              "contextName": "Home Page"
+                            },
+                            {
+                              "stepIndex": 2,
+                              "actionName": "Login to Booking System",
+                              "actionDescription": "Action to login into the booking system",
+                              "contextName": "Login Page"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "requirementTraceability": {
+                    "value": {
+                      "page": 1,
+                      "pageSize": 10,
+                      "totalPages": 1,
+                      "totalCount": 3,
+                      "results": [
+                        {
+                          "id": 1,
+                          "name": "Ticket Booking",
+                          "description": "Scenario to test Ticket Booking functionality",
+                          "testCasesCount": 15,
+                          "traceabilityCount": 7,
+                          "status": "New",
+                          "createdBy": "Tenant Admin",
+                          "createdTimestamp": "2025-10-08T09:24:22Z",
+                          "lastModifiedBy": "Verni Cooper",
+                          "lastModifiedTimestamp": "2025-10-19T17:59:05Z",
+                          "tags": ["To be Reviewed", "Smoke"],
+                          "requirementTraceability": ["TP-22", "TP-49"]
+                        },
+                        {
+                          "id": 3,
+                          "name": "User Registration",
+                          "description": "Scenario to test new user registration flow",
+                          "testCasesCount": 15,
+                          "traceabilityCount": 7,
+                          "status": "New",
+                          "createdBy": "Tenant Admin",
+                          "createdTimestamp": "2025-10-08T09:24:22Z",
+                          "lastModifiedBy": "Verni Cooper",
+                          "lastModifiedTimestamp": "2025-10-19T17:59:05Z",
+                          "requirementTraceability": []
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid authentication credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid user credentials or API key"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized Access"
+                    }
+                  }
+                },
+                "examples": {
+                  "general": {
+                    "summary": "authorization Error",
+                    "value": {
+                      "error": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error occurred while retrieving Scenarios details"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scn/scenarios/{scenarioType}/bulk-update": {
+      "patch": {
+        "tags": ["Scenario"],
+        "summary": "Bulk update Scenario Requirement Traceability",
+        "description": "Updates requirement traceability for multiple Scenarios.",
+        "operationId": "updateScenarios",
+        "parameters": [
+          {
+            "name": "scenarioType",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "enum": ["auto", "manual"] },
+            "description": "Scenario Type"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "scenarioIds",
+                    "requirementKeys",
+                    "updateType",
+                    "externalIntegrationProject"
+                  ],
+                  "properties": {
+                    "scenarioIds": {
+                      "type": "array",
+                      "items": { "type": "integer" },
+                      "description": "List of Scenario IDs to integrate with requirements",
+                      "example": [1, 2, 3, 4, 5, 10]
+                    },
+                    "requirementTraceability": {
+                      "type": "object",
+                      "description": "Contains details for updating requirement traceability of Scenario entities.",
+                      "properties": {
+                        "requirementKeys": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "description": "List of requirement keys to associate with Scenarios",
+                          "example": ["key1", "Key3"]
+                        },
+                        "updateType": {
+                          "type": "string",
+                          "enum": ["OVERRIDE", "APPEND"],
+                          "description": "Specifies the update behavior: OVERRIDE replaces existing requirements, APPEND adds new requirements to existing ones"
+                        },
+                        "externalIntegrationProject": {
+                          "type": "string",
+                          "description": "Name of the external integration project",
+                          "example": "JIRA HOME"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "scenarioIds": [1, 2],
+                    "requirementTraceability": {
+                      "requirementKeys": ["TP-11", "TP-31"],
+                      "updateType": "APPEND",
+                      "externalIntegrationProject": "SanityWorkSpace"
+                    }
+                  },
+                  {
+                    "scenarioIds": [98, 102],
+                    "requirementTraceability": {
+                      "requirementKeys": ["TP-51", "TP-319", "TP-987"],
+                      "updateType": "OVERRIDE",
+                      "externalIntegrationProject": "SanityWorkSpace"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bulk update completed with detailed results showing successfully updated Scenarios, checkout conflicts, and not found Scenario IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "updatedEntities": {
+                      "type": "array",
+                      "items": { "type": "integer" },
+                      "description": "List of scenario IDs that were successfully updated",
+                      "example": [1, 2, 3]
+                    },
+                    "notUpdatedOthersCheckedOutEntities": {
+                      "type": "array",
+                      "items": { "type": "integer" },
+                      "description": "Contains the scenario IDs that could not be updated due to being checked out by other users.",
+                      "example": [4, 5]
+                    },
+                    "notFoundEntities": {
+                      "type": "array",
+                      "items": { "type": "integer" },
+                      "description": "List of scenario IDs that were not found",
+                      "example": [10]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Validation errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "scenarioIds cannot be null or empty"
+                    }
+                  }
+                },
+                "examples": {
+                  "nullRequestBody": {
+                    "summary": "Null request body",
+                    "value": { "error": "Request Body cannot be null or empty" }
+                  },
+                  "noExternalIntegration": {
+                    "summary": "External integration not configured",
+                    "value": {
+                      "error": "External Integration is not configured for the project"
+                    }
+                  },
+                  "nullScenarioIds": {
+                    "summary": "Missing Scenario IDs",
+                    "value": { "error": "scenarioIds cannot be null or empty" }
+                  },
+                  "nullRequirementKeys": {
+                    "summary": "Missing requirement keys",
+                    "value": {
+                      "error": "requirementKeys cannot be null or empty"
+                    }
+                  },
+                  "nullExternalProject": {
+                    "summary": "Missing external integration project",
+                    "value": {
+                      "error": "externalIntegrationProject cannot be null or empty"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid authentication credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid user credentials or API key"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have permission to perform this operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User does not have authorization to access this feature"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal error occurred while requirements integration"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

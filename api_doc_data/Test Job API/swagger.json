@@ -1,0 +1,351 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Job Status Tracking API",
+    "version": "1.0.0",
+    "description": "API for tracking the status of test jobs. This endpoint allows you to retrieve the execution status and results of a specific test job run."
+  },
+  "servers": [
+    {
+      "url": "{accelqLoginUrl}/awb/api/1.0/{tenantCode}",
+      "variables": {
+        "accelqLoginUrl": {
+          "default": "",
+          "description": "Base URL for AccelQ login"
+        },
+        "tenantCode": {
+          "default": "your-tenant",
+          "description": "Tenant code for identifying the organization"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/runs/{runPid}": {
+      "get": {
+        "tags": ["Job Status"],
+        "summary": "Get test job run status",
+        "description": "Retrieves the current status and results of a test job using its run PID. This includes the overall job status, the total number of test cases, and the counts of passed, failed, and not-run cases.\n\nYou can monitor the status of an ongoing job using the API described below",
+        "operationId": "getJobRunStatus",
+        "parameters": [
+          {
+            "name": "runPid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Unique identifier of the test job run",
+            "example": 159
+          },
+          {
+            "name": "user_id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Login username (email)"
+          },
+          {
+            "name": "api_key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key of the user for authentication"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of job run status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "type": "object",
+                      "description": "Summary information about the test job run"
+                    },
+                    "parentPid": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Parent job PID if this is a child run"
+                    },
+                    "childRunSummaryList": {
+                      "type": "array",
+                      "description": "List of child run summaries",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "testRunStoragePurgeInfo": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "Information about test run storage purge"
+                    },
+                    "reRunsCount": {
+                      "type": "integer",
+                      "description": "Number of reruns for this job"
+                    }
+                  }
+                },
+                "example": {
+                  "summary": {
+                    "jobPid": 7092,
+                    "status": "completed",
+                    "tagList": [],
+                    "subStatus": "In progress",
+                    "reasons": [],
+                    "errors": [],
+                    "pass": 1,
+                    "fail": 0,
+                    "notRun": 0,
+                    "testcaseCount": 1,
+                    "completedTimestamp": 1763728063542,
+                    "lastUpdatedTimestamp": 0,
+                    "testCaseSummaryList": [
+                      {
+                        "reportVersion": "3.3",
+                        "id": 0,
+                        "dbPid": 2794,
+                        "scnPid": 3060,
+                        "name": "User Login Validation",
+                        "status": "pass",
+                        "lastStatusUpdatedUserName": "",
+                        "lastErrorStmtMsg": "",
+                        "startDate": 1763727964458,
+                        "endDate": 1763728062308,
+                        "jobPid": 7092,
+                        "extResultLink": "https://app.accelq.io/#/forward?tenantCode=sampleTenant&projectCode=SampleProject&jobPid=7092&testTypePid=0&scnPid=3060&testCasePid=2794&isAccessAllTC=true",
+                        "selfHealingCount": null,
+                        "hostTimezone": "IST",
+                        "metadata": {
+                          "Test Field 1": ["option 1"],
+                          "tags": []
+                        }
+                      }
+                    ],
+                    "reportVersion": "3.3",
+                    "purpose": "Scenario - User Login Validation",
+                    "testTypePid": 0,
+                    "createdBy": "System",
+                    "startTimestamp": 1763727963640,
+                    "tenantCode": "sampleTenant",
+                    "projectCode": "SampleProject",
+                    "datasetName": "Test",
+                    "scnCount": 1,
+                    "testSuiteName": "",
+                    "scnName": "User Login Validation",
+                    "scnPid": 3060,
+                    "hostConfig": {
+                      "webProviderType": "Local Agent",
+                      "mobileProviderType": "Local Agent",
+                      "webConnectionParams": {},
+                      "mobileConnectionParams": {},
+                      "agentName": "SampleAgent",
+                      "agentNamePattern": null,
+                      "dynamicAgent": false,
+                      "parallelExecution": false,
+                      "numOfParallelRuns": 1,
+                      "webAdditionalCapabilities": "",
+                      "mobileAdditionalCapabilities": "",
+                      "webDriverConfigName": "",
+                      "mobileDriverConfigName": "",
+                      "browserKeepAlive": true,
+                      "mobileKeepAlive": false,
+                      "skipReinstall": false,
+                      "webPlatformDetails": {
+                        "os": "Windows",
+                        "osVersion": "",
+                        "browser": "Chrome",
+                        "browserVersion": "",
+                        "isRealDevice": true,
+                        "deviceStatus": 3,
+                        "customDriverUrl": "http://127.0.0.1:4723/wd/hub",
+                        "appiumDriverUrl": "http://127.0.0.1:4723/wd/hub"
+                      },
+                      "mobilePlatformDetails": null,
+                      "mobilePlatformDetailsList": null,
+                      "emulatedDeviceDetails": null,
+                      "tcStmtLineMaxCount": 100000,
+                      "autoStartBsLocal": true,
+                      "webOs": "Windows",
+                      "webOsVersion": "",
+                      "webBrowser": "Chrome",
+                      "webBrowserVersion": ""
+                    },
+                    "notifyOnStart": true,
+                    "emailNotificationMode": 1,
+                    "notificationEmailIds": "user@example.com",
+                    "debug": false,
+                    "enableIframeFreeFormSearch": false,
+                    "settings": {
+                      "captureScreenshot": "2",
+                      "enableSelfHealing": "true",
+                      "pageLoadWaitTime": "60",
+                      "elementWaitTime": "30",
+                      "loggerLevel": "VERBOSE",
+                      "verbose": "false",
+                      "enableWebAccessibilityTesting": "false",
+                      "enableWebPerformanceTesting": "false",
+                      "slaThreshold": "0",
+                      "apiTimeout": "60"
+                    },
+                    "scenarioMetadataDef": {},
+                    "testCaseMetadataDef": {
+                      "Test Field 1": ["option 1", "option 2", "option 3"],
+                      "Platform": ["Android", "IOS"]
+                    },
+                    "runConfig": {},
+                    "executionParametersJson": "{\"Language\":\"japanese\",\"Release\":\"Release 2024\"}",
+                    "bugsCount": 0,
+                    "bugList": [],
+                    "scenarioList": [
+                      {
+                        "name": "User Login Validation",
+                        "description": "",
+                        "dbPid": 3060,
+                        "dataDriven": true,
+                        "metadata": {
+                          "Test Field 1": ["option 1"]
+                        },
+                        "testCases": [],
+                        "testCasesList": [
+                          {
+                            "pid": 2794,
+                            "name": "User Login Validation"
+                          }
+                        ],
+                        "jiraStoryList": []
+                      }
+                    ],
+                    "autoReRun": false,
+                    "extResultUrl": "https://app.accelq.io/#/forward?tenantCode=sampleTenant&projectCode=SampleProject&jobPid=7092&testTypePid=0",
+                    "extResultUrlWithApiCode": "https://app.accelq.io/#/forward?tenantCode=sampleTenant&projectCode=SampleProject&jobPid=7092&testTypePid=0&extApiCode=sampleApiCode",
+                    "extResultUrlPasscode": "samplePass"
+                  },
+                  "parentPid": null,
+                  "childRunSummaryList": [
+                    {
+                      "jobPid": 7092,
+                      "purpose": "Scenario - User Login Validation",
+                      "startTimestamp": 1763727963640,
+                      "datasetName": "Test",
+                      "testSuiteName": "",
+                      "scnName": "User Login Validation",
+                      "status": "completed",
+                      "subStatus": "In progress",
+                      "reasons": [],
+                      "reasonsStr": "",
+                      "pass": 1,
+                      "fail": 0,
+                      "notRun": 0,
+                      "bugsCount": 0,
+                      "completedTimestamp": 1763728063542,
+                      "webPlatformDetails": "{\"os\":\"Windows\",\"osVersion\":\"\",\"browser\":\"Chrome\",\"browserVersion\":\"\",\"isRealDevice\":true,\"deviceStatus\":3,\"customDriverUrl\":\"http://127.0.0.1:4723/wd/hub\"}",
+                      "createdBy": "System",
+                      "debug": false,
+                      "autoReRun": false,
+                      "testTypePid": 0,
+                      "consolidated": true,
+                      "hostConfig": {
+                        "webProviderType": "Local Agent",
+                        "mobileProviderType": "Local Agent",
+                        "webConnectionParams": {},
+                        "mobileConnectionParams": {},
+                        "agentName": "SampleAgent",
+                        "agentNamePattern": null,
+                        "dynamicAgent": false,
+                        "parallelExecution": false,
+                        "numOfParallelRuns": 1,
+                        "webAdditionalCapabilities": "",
+                        "mobileAdditionalCapabilities": "",
+                        "webDriverConfigName": "",
+                        "mobileDriverConfigName": "",
+                        "browserKeepAlive": true,
+                        "mobileKeepAlive": false,
+                        "skipReinstall": false,
+                        "webPlatformDetails": {
+                          "os": "Windows",
+                          "osVersion": "",
+                          "browser": "Chrome",
+                          "browserVersion": "",
+                          "isRealDevice": true,
+                          "deviceStatus": 3,
+                          "customDriverUrl": "http://127.0.0.1:4723/wd/hub",
+                          "appiumDriverUrl": "http://127.0.0.1:4723/wd/hub"
+                        },
+                        "mobilePlatformDetails": null,
+                        "mobilePlatformDetailsList": null,
+                        "emulatedDeviceDetails": null,
+                        "tcStmtLineMaxCount": 100000,
+                        "autoStartBsLocal": true,
+                        "webOs": "Windows",
+                        "webOsVersion": "",
+                        "webBrowser": "Chrome",
+                        "webBrowserVersion": ""
+                      }
+                    }
+                  ],
+                  "testRunStoragePurgeInfo": null,
+                  "reRunsCount": 0
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid authentication credentials"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Job run with specified PID does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Job run with PID 159 does not exist"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Error occurred while retrieving job run status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
