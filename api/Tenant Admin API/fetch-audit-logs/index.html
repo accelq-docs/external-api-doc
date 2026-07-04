@@ -17,7 +17,7 @@ html body{padding:0;margin:0}.api-doc[data-astro-cid-hoo3v4jr]{max-width:100%}.a
 <ul><li><strong>Open-tail stream</strong> (<code>createdAfter</code> only, no <code>createdBefore</code>): each subsequent poll advances the upper bound forward in real time, delivering new events as they are committed. The window from <code>createdAfter</code> to <code>now</code> must not exceed 90 days at the time of the initial call.</li>
 <li><strong>Fixed window</strong> (<code>createdAfter</code> + <code>createdBefore</code>): the cursor exhausts once all matching rows in the range have been delivered (<code>hasMore: false</code>).</li>
 <li><strong>Start from now</strong> (neither date supplied): stream begins at the current time, delivering only events that occur going forward.</li>
-<p></ul></p>
+</ul>
 <h3>Subsequent calls (with <code>cursor</code>)</h3>
 
 <p>Pass only the <code>cursor</code> field from the previous response's <code>nextCursor</code>. Do not include any filters or dates — they are already frozen inside the cursor. To change filters, start a new stream by making a fresh initial call without a cursor.</p>
@@ -27,7 +27,7 @@ html body{padding:0;margin:0}.api-doc[data-astro-cid-hoo3v4jr]{max-width:100%}.a
 <ul><li><code>hasMore: true</code> — a full page was returned; call again immediately with <code>nextCursor</code> to retrieve the next page.</li>
 <li><code>hasMore: false</code> — the stream is caught up; wait before polling again, then retry with <code>nextCursor</code>.</li>
 <li><strong>Always preserve <code>nextCursor</code></strong>, even when <code>data</code> is empty. Discarding it loses your position in the stream.</li>
-<p></ul></p>
+</ul>
 <h2>Date rules</h2>
 
 <ul><li>Accepted format: ISO 8601 with explicit UTC offset, e.g. <code>2026-06-01T00:00:00Z</code>.</li>
@@ -36,7 +36,7 @@ html body{padding:0;margin:0}.api-doc[data-astro-cid-hoo3v4jr]{max-width:100%}.a
 <li><code>createdBefore</code> requires <code>createdAfter</code>. If <code>createdBefore</code> is in the future it is silently clamped to <code>now</code>.</li>
 <li><code>createdBefore</code> must be after <code>createdAfter</code> (after clamping).</li>
 <li>The window between <code>createdAfter</code> and <code>createdBefore</code> (or <code>now</code> for open tails) must not exceed 90 days.</li>
-<p></ul></p>
+</ul>
 <h2>Ordering and safe upper bound</h2>
 
 <p>Results are returned in ascending order by event ID (i.e. chronological order). A 5-second lag is applied to the upper time bound so that in-flight transactions have time to commit before the cursor reaches them, preventing gaps in the stream.</p>
@@ -60,11 +60,15 @@ html body{padding:0;margin:0}.api-doc[data-astro-cid-hoo3v4jr]{max-width:100%}.a
 <option value="2">fixedWindow</option>
 <option value="3">fixedWindowWithFilters</option>
 <option value="4">nextPage</option>
-<p></select></p>
-<p></div></p>
+</select>
+</div>
 
 
+<h2>Request Body</h2>
 
+<div id="payload-container"><div class="code-block payload-block"><div class="code-header"><span class="lang">json</span><button class="copy-btn code-copy-btn">Copy</button></div><pre><code>{}
+</code></pre></div>
+</div>
 
 <h2>Responses</h2>
 
